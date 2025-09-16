@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const schema = new mongoose.schema({
+const schema = new mongoose.Schema({
   originalURL: {
     type: String,
     required: true,
@@ -20,5 +20,3 @@ const schema = new mongoose.schema({
 });
 
 export const URLModel = mongoose.model('URL', schema);
-
-

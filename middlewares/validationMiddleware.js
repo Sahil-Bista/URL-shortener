@@ -1,3 +1,5 @@
+import { validationResult } from 'express-validator';
+
 export const validationErrorHandler = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

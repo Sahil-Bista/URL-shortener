@@ -1,7 +1,6 @@
 import express from 'express';
+import { URLRouter } from './URL.js';
 
 export const router = express.Router();
 
-router.get('/health', (req, res) => {
-  console.log(`App is up and runing`);
-});
+router.use('/url', URLRouter);

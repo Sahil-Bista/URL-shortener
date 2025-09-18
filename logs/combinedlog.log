@@ -62,3 +62,8 @@
 [2025-09-18 13:30:02] INFO: Connected to Mongo Database
 [2025-09-18 13:30:05] INFO: Connected to Mongo Database
 [2025-09-18 13:30:17] INFO: Connected to Mongo Database
+[2025-09-18 13:40:58] INFO: Connected to Mongo Database
+[2025-09-18 13:41:01] INFO: Parsing the user agent object
+[2025-09-18 13:41:01] INFO: URL analytics saved
+[2025-09-18 13:41:01] INFO: Redirecting into original URL https://www.google.com/search?q=hi
+[2025-09-18 13:48:33] INFO: Connected to Mongo Database

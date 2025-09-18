@@ -30,6 +30,7 @@ export const redirectURL = asyncWrapper(async (req, res) => {
   const { shortCode } = req.params;
   logger.info('Parsing the user agent object');
   const ua = UAParser(req.headers['user-agent']);
+  console.log(ua);
   const url = await URLModel.findOne({ shortCode });
   if (!url) {
     logger.warn(
@@ -52,4 +53,26 @@ export const redirectURL = asyncWrapper(async (req, res) => {
   logger.info('URL analytics saved');
   logger.info(`Redirecting into original URL ${url.originalURL}`);
   res.redirect(url.originalURL);
+});
+
+export const getAnalytics = asyncWrapper(async (req, res) => {
+  const { shortCode } = req.params;
+  const url = await URLModel.findOne({ shortCode });
+  if (!url) {
+    logger.warn(
+      `No such shortCode ${shortCode} has been created for any long URL`
+    );
+    const error = new Error(
+      'No url found for the shortcode, please try shortcoding the URL first before checking the analytics'
+    );
+    error.statusCode = 404;
+    throw error;
+  }
+  return res.json({
+    originalURL: url.originalURL,
+    shortCode: url.shortCode,
+    clickCount: url.clickCount,
+    recentVisitAnalytics: url.analytics.slice(-5),
+    createdAt: url.createdAt,
+  });
 });

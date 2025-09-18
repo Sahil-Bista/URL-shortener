@@ -8,22 +8,13 @@ const analyticsSchema = new mongoose.Schema({
   user_agent: {
     type: String,
   },
-  country: {
-    type: String,
-  },
-  timezone: {
-    type: String,
-  },
   browser: {
     type: String,
   },
   os: {
     type: String,
   },
-  deviceType: {
-    type: String,
-  },
-  referre: {
+  deviceModel: {
     type: String,
   },
 });
@@ -36,6 +27,7 @@ const URLSchema = new mongoose.Schema({
   shortCode: {
     type: String,
     required: true,
+    unique: true,
   },
   createdAt: {
     type: Date,

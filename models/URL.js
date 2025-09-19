@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 
 const analyticsSchema = new mongoose.Schema({
   clickedAt: {
@@ -38,6 +38,10 @@ const URLSchema = new mongoose.Schema({
     default: 0,
   },
   analytics: [analyticsSchema],
+  owner: {
+    ref: 'User',
+    type: mongoose.Schema.Types.ObjectId,
+  },
 });
 
 export const URLModel = mongoose.model('URL', URLSchema);

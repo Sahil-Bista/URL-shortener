@@ -7,8 +7,3 @@ export const router = express.Router();
 
 router.use('/url', URLRouter);
 router.use('/user', userRouter);
-
-router.get('/hi', verifyJWT, (req, res) => {
-  console.log('userId', req.user);
-  return res.json('Hello');
-});

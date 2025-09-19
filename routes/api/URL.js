@@ -10,10 +10,17 @@ import {
   redirectURL,
   shortenURL,
 } from '../../controllers/URLcontroller.js';
+import { verifyJWT } from '../../middlewares/verifyjWT.js';
 
 export const URLRouter = express.Router();
 
-URLRouter.post('/', shortenURLValidation, validationErrorHandler, shortenURL);
+URLRouter.post(
+  '/',
+  verifyJWT,
+  shortenURLValidation,
+  validationErrorHandler,
+  shortenURL
+);
 URLRouter.get(
   '/:shortCode',
   redirectURLValidation,
@@ -22,6 +29,7 @@ URLRouter.get(
 );
 URLRouter.get(
   '/stats/:shortCode',
+  verifyJWT,
   getURLAnalyticsValidation,
   validationErrorHandler,
   getAnalytics

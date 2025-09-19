@@ -5,6 +5,7 @@ import { UAParser } from 'ua-parser-js';
 import { logger } from '../logger/index.js';
 
 export const shortenURL = asyncWrapper(async (req, res) => {
+  const userId = req.user;
   const { longURL } = req.body;
   const duplicate = await URLModel.findOne({ originalURL: longURL });
   if (duplicate) {
@@ -18,8 +19,11 @@ export const shortenURL = asyncWrapper(async (req, res) => {
   const newUrl = await URLModel.create({
     originalURL: longURL,
     shortCode: nanoid(5),
+    owner: userId,
   });
-  logger.info(`Long URL ${longURL} shortened into shortCode ${shortCode}`);
+  logger.info(
+    `Long URL ${longURL} shortened into shortCode ${newUrl.shortCode}`
+  );
   return res.status(200).json({
     originalURL: longURL,
     shortenedURL: `${req.protocol}://${req.get('host')}/api/url/${newUrl.shortCode}`,
@@ -30,7 +34,6 @@ export const redirectURL = asyncWrapper(async (req, res) => {
   const { shortCode } = req.params;
   logger.info('Parsing the user agent object');
   const ua = UAParser(req.headers['user-agent']);
-  console.log(ua);
   const url = await URLModel.findOne({ shortCode });
   if (!url) {
     logger.warn(
@@ -56,6 +59,7 @@ export const redirectURL = asyncWrapper(async (req, res) => {
 });
 
 export const getAnalytics = asyncWrapper(async (req, res) => {
+  const userId = req.user;
   const { shortCode } = req.params;
   const url = await URLModel.findOne({ shortCode });
   if (!url) {
@@ -66,6 +70,12 @@ export const getAnalytics = asyncWrapper(async (req, res) => {
       'No url found for the shortcode, please try shortcoding the URL first before checking the analytics'
     );
     error.statusCode = 404;
+    throw error;
+  }
+  if (userId !== url.owner.toString()) {
+    logger.warn(`The ${shortCode} is not oned by user ${userId}`);
+    const error = new Error('User unauthorized to access the shortCode');
+    error.statusCode = 403;
     throw error;
   }
   return res.json({

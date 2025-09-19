@@ -2,14 +2,8 @@ import { nanoid } from 'nanoid';
 import { URLModel } from '../models/URL.js';
 import { asyncWrapper } from '../utils/asyncWrapper.js';
 import { logger } from '../logger/index.js';
-import Redis from 'redis';
+import client from '../utils/redisClient.js';
 import { updateAnalytics } from '../utils/updateAnaytics.js';
-
-const client = Redis.createClient();
-
-client.on('error', (err) => console.error('Redis Client Error', err));
-
-await client.connect();
 
 export const shortenURL = asyncWrapper(async (req, res) => {
   const userId = req.user;

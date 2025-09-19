@@ -1,8 +1,14 @@
 import { nanoid } from 'nanoid';
 import { URLModel } from '../models/URL.js';
 import { asyncWrapper } from '../utils/asyncWrapper.js';
-import { UAParser } from 'ua-parser-js';
 import { logger } from '../logger/index.js';
+import Redis from 'redis';
+
+const client = Redis.createClient();
+
+client.on('error', (err) => console.error('Redis Client Error', err));
+
+await client.connect();
 
 export const shortenURL = asyncWrapper(async (req, res) => {
   const userId = req.user;
@@ -32,30 +38,25 @@ export const shortenURL = asyncWrapper(async (req, res) => {
 
 export const redirectURL = asyncWrapper(async (req, res) => {
   const { shortCode } = req.params;
-  logger.info('Parsing the user agent object');
-  const ua = UAParser(req.headers['user-agent']);
-  const url = await URLModel.findOne({ shortCode });
-  if (!url) {
-    logger.warn(
-      `No such shortCode ${shortCode} has been created for any long URL`
-    );
-    const error = new Error(
-      'No url found for the shortcode, please try shortcoding the URL first'
-    );
-    error.statusCode = 404;
-    throw error;
+  console.time('redirect');
+  let originalURL = await client.get(shortCode);
+  if (!originalURL) {
+    const urlDoc = await URLModel.findOne({ shortCode });
+    if (!urlDoc) {
+      logger.warn(
+        `No such shortCode ${shortCode} has been created for any long URL`
+      );
+      const error = new Error(
+        'No url found for the shortcode, please try shortcoding the URL first before checking the analytics'
+      );
+      error.statusCode = 404;
+      throw error;
+    }
+    originalURL = urlDoc.originalURL;
+    await client.setEx(shortCode, 3600, originalURL);
   }
-  url.analytics.push({
-    user_agent: ua.ua,
-    browser: ua.browser.name,
-    os: ua.os.name,
-    deviceModel: ua.device.model,
-  });
-  url.clickCount += 1;
-  await url.save();
-  logger.info('URL analytics saved');
-  logger.info(`Redirecting into original URL ${url.originalURL}`);
-  res.redirect(url.originalURL);
+  res.redirect(originalURL);
+  console.timeEnd('redirect');
 });
 
 export const getAnalytics = asyncWrapper(async (req, res) => {

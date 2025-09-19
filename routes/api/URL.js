@@ -11,11 +11,13 @@ import {
   shortenURL,
 } from '../../controllers/URLcontroller.js';
 import { verifyJWT } from '../../middlewares/verifyjWT.js';
+import { rateLimitter } from '../../middlewares/rateLimitter.js';
 
 export const URLRouter = express.Router();
 
 URLRouter.post(
   '/',
+  rateLimitter,
   verifyJWT,
   shortenURLValidation,
   validationErrorHandler,

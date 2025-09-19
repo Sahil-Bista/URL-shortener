@@ -1,6 +1,8 @@
 import { UserModel } from '../models/User.js';
 import { asyncWrapper } from '../utils/asyncWrapper.js';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { logger } from '../logger/index.js';
 
 export const userLogin = asyncWrapper(async (req, res) => {
   const { email, password } = req.body;
@@ -13,7 +15,7 @@ export const userLogin = asyncWrapper(async (req, res) => {
     error.statusCode = 404;
     throw error;
   }
-  const comparePassword = await bcrypt.compare(user.password, password);
+  const comparePassword = await bcrypt.compare(password, user.password);
   if (!comparePassword) {
     logger.warn(`Incorrect password for email ${email}`);
     const error = new Error(`Incorrect password for email ${email}`);

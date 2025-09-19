@@ -3,6 +3,7 @@ import { URLModel } from '../models/URL.js';
 import { asyncWrapper } from '../utils/asyncWrapper.js';
 import { logger } from '../logger/index.js';
 import Redis from 'redis';
+import { updateAnalytics } from '../utils/updateAnaytics.js';
 
 const client = Redis.createClient();
 
@@ -57,6 +58,7 @@ export const redirectURL = asyncWrapper(async (req, res) => {
   }
   res.redirect(originalURL);
   console.timeEnd('redirect');
+  updateAnalytics(shortCode, req.headers['user-agent']);
 });
 
 export const getAnalytics = asyncWrapper(async (req, res) => {
